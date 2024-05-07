@@ -12,8 +12,15 @@ function(input, output, session) {
     elements <- unlist(strsplit(lines, "\t|,| "))
     elements <- elements[elements != ""]
     elements <- trimws(elements)
-    # Run clustermole
-    celltype_df <- clustermole_overlaps(genes = elements, species = input$species)
+    # Run clustermole and show any error messages
+    tryCatch(
+      {
+        celltype_df <- clustermole_overlaps(genes = elements, species = input$species)
+      },
+      error = function(e) {
+        stop(safeError(e))
+      }
+    )
     # Adjust the overlap output
     celltype_df <- mutate(celltype_df, overlap = paste(overlap, "of", n_genes))
     # Remove underscores to avoid long lines since they are not used for wrapping text
